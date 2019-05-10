@@ -1,0 +1,28 @@
+{
+  "name": "busvisor-back",
+  "version": "1.0.0",
+  "description": "sleeping child check system",
+  "main": "app.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zezaeoh/busvisor-back.git"
+  },
+  "author": "zezaeoh",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/zezaeoh/busvisor-back/issues"
+  },
+  "homepage": "https://github.com/zezaeoh/busvisor-back#readme",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "dotenv": "^7.0.0",
+    "express": "^4.16.4",
+    "mongoose": "^5.4.19",
+    "morgan": "^1.9.1",
+    "nodemailer": "^6.1.1",
+    "uuid": "^3.3.2"
+  }
+}
