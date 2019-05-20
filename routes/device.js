@@ -3,7 +3,7 @@ const Device = require('../models/device');
 const em = require('../service/EmergencyManager');
 
 router.get('/:deviceid', (req, res) => {
-  Device.findOne({ id: req.params.deviceid })
+  Device.getDeviceByDeviceId(req.params.deviceid)
     .then((device) => {
       if (!device) return res.sendStatus(404);
       if (!device.is_used) return res.sendStatus(203);

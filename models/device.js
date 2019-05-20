@@ -7,7 +7,8 @@ const ct_record = new mongoose.Schema({
 });
 
 const dr_record = new mongoose.Schema({
-  dr_type: { type: Number, default: -1 },
+  dr_type: { type: Number, default: 0 },
+  is_driving: { type: Boolean, default: true },
   dr_start_time: { type: Date, default: Date.now },
   dr_end_time: { type: Date },
   ct_records: [ ct_record ]
@@ -55,8 +56,8 @@ deviceSchema.statics.endDrivingByDeviceId = function(device_id) {
       .then( device => {
         const record = device.dr_records[device.dr_records.length - 1];
         record.dr_end_time = Date.now();
-        if(record.dr_type === -1)
-          record.dr_type = 0;
+        if(record.is_driving)
+          record.is_driving = false;
 
         device.save();
         resolve();
@@ -76,17 +77,24 @@ deviceSchema.statics.emergDrivingByDeviceId = function(device_id, emerg_status) 
   });
 };
 
+// Get device by device id
+deviceSchema.statics.getDeviceByDeviceId = function(device_id) {
+  return this.findOne({ id: device_id });
+}
+
 // Get latest status
 deviceSchema.statics.getLatestStatusByDrivingId = function(device_id) {
   return new Promise((resolve, reject) => {
     this.findOne({ id: device_id })
       .then( device => {
         const dr = device.dr_records[device.dr_records.length - 1];
-        const ct = dr.ct_records[dr.ct_records.length - 1];
-        if(!dr || !ct)
-          resolve({ dr_type: 0, cnt: 0 });
+        const ct = (dr) ? dr.ct_records[dr.ct_records.length - 1] : null;
+        if(!dr)
+          resolve({ is_driving: false, dr_type: 0, cnt: 0 });
+        else if(!ct)
+          resolve({ is_driving: dr.is_driving, dr_type: dr.dr_type, cnt: 0 });
         else
-          resolve({ dr_type: dr.dr_type, cnt: ct.ct });
+          resolve({ is_driving: dr.is_driving, dr_type: dr.dr_type, cnt: ct.ct });
       }).catch(e => reject(e));
   });
 }

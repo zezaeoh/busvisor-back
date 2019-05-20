@@ -16,6 +16,7 @@ mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useFindAndModif
   .then(() => {
     console.log('Successfully connected to mongodb');
     save_test_device();
+    save_test_user();
   }).catch(e => console.error(e));
 
 rl.on('line', l => {
@@ -39,16 +40,26 @@ function save_test_device(){
     id: 'sc13150',
     is_used: false,
     dr_records: [],
-    contacts1: [{ name: "jaegeon", phone: "01087823829", email: "zezaeoh@gmail.com" }],
-    contacts2: [
-      { name: "jaegeon", phone: "01087823829", email: "zezaeoh@gmail.com" },
-      //{ name: "mina", phone: "", email: "wwft09@ajou.ac.kr"},
-      //{ name: "yunseok", phone: "", email: "tall0921@naver.com"},
-      //{ name: "yeonsik", phone: "", email: "jk00405@naver.com"},
-    ],
+    contacts1: [],
+    contacts2: [],
   });
 
   test_device.save()
+    .then(() => console.log('done!'))
+    .catch(e => console.log('already exist!'));
+}
+
+function save_test_user(){
+  const User = require('./models/user');
+
+  const test_user = new User({
+    id: 'test',
+    pw: '1234',
+    name: 'Test Member',
+    devices: [],
+  });
+
+  test_user.save()
     .then(() => console.log('done!'))
     .catch(e => console.log('already exist!'));
 }
