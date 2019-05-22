@@ -99,5 +99,20 @@ deviceSchema.statics.getLatestStatusByDrivingId = function(device_id) {
   });
 }
 
+// Update emergency contact by device id
+deviceSchema.statics.updateEmergencyContactByDeviceId = function(device_id, ec1, ec2) {
+  return new Promise((resolve, reject) => {
+    this.findOne({ id: device_id })
+      .then( device => {
+        device.is_used = true;
+        device.contacts1 = ec1.map(i => {return {name: i, phone: i, email: i}});
+        device.contacts2 = ec2.map(i => {return {name: i, phone: i, email: i}});
+        device.save();
+        resolve();
+      }).catch(e => reject(e));
+  });
+
+}
+
 // Create Model & Export
 module.exports = mongoose.model('Device', deviceSchema);
