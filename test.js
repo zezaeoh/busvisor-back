@@ -15,7 +15,8 @@ var rl = readLine.createInterface({
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useFindAndModify: false })
   .then(() => {
     console.log('Successfully connected to mongodb');
-    save_test_device();
+    save_test_device('sc13150');
+    save_test_device('sc13160');
     save_test_user();
   }).catch(e => console.error(e));
 
@@ -33,11 +34,11 @@ rl.on('line', l => {
   }
 });
 
-function save_test_device(){
+function save_test_device(device_id){
   const Device = require('./models/device');
 
   const test_device = new Device({
-    id: 'sc13150',
+    id: device_id,
     is_used: false,
     dr_records: [],
     contacts1: [],
@@ -45,8 +46,8 @@ function save_test_device(){
   });
 
   test_device.save()
-    .then(() => console.log('done!'))
-    .catch(e => console.log('already exist!'));
+    .then(() => console.log(`id: ${device_id} device created!`))
+    .catch(e => console.log(`id: ${device_id} device already exist!`));
 }
 
 function save_test_user(){

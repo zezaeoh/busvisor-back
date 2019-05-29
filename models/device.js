@@ -72,7 +72,13 @@ deviceSchema.statics.emergDrivingByDeviceId = function(device_id, emerg_status) 
       .then( device => {
         device.dr_records[device.dr_records.length - 1].dr_type = emerg_status;
         device.save();
-        resolve(device);
+
+        const cts = device.dr_records[device.dr_records.length - 1].ct_records;
+        resolve({
+          contacts1: device.contacts1,
+          contacts2: device.contacts2,
+          cnt: cts[cts.length - 1].ct
+        });
       }).catch(e => reject(e));
   });
 };
@@ -80,6 +86,22 @@ deviceSchema.statics.emergDrivingByDeviceId = function(device_id, emerg_status) 
 // Get device by device id
 deviceSchema.statics.getDeviceByDeviceId = function(device_id) {
   return this.findOne({ id: device_id });
+}
+
+// Get device driving records by device id
+deviceSchema.statics.getDrivingRecordsByDeviceId = function(device_id) {
+  return new Promise((resolve, reject) => {
+    this.findOne({ id: device_id })
+      .then( device => {
+        resolve(device.dr_records.map(i => {
+          return {
+            dr_type: i.dr_type, 
+            dr_start_time: i.dr_start_time, 
+            dr_end_time: i.dr_end_time
+          }
+        }))
+      })
+  });
 }
 
 // Get latest status
@@ -105,8 +127,10 @@ deviceSchema.statics.updateEmergencyContactByDeviceId = function(device_id, ec1,
     this.findOne({ id: device_id })
       .then( device => {
         device.is_used = true;
-        device.contacts1 = ec1.map(i => {return {name: i, phone: i, email: i}});
-        device.contacts2 = ec2.map(i => {return {name: i, phone: i, email: i}});
+        device.contacts1 = ec1.filter(i => Boolean(i))
+                              .map(i => {return {name: i, phone: i, email: i}});
+        device.contacts2 = ec2.filter(i => Boolean(i))
+                              .map(i => {return {name: i, phone: i, email: i}});
         device.save();
         resolve();
       }).catch(e => reject(e));

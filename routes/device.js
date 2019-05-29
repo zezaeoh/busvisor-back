@@ -32,9 +32,9 @@ router.get('/:deviceid/end', (req, res) => {
 
 router.get('/:deviceid/emerg/:status', (req, res) => {
   Device.emergDrivingByDeviceId(req.params.deviceid, req.params.status)
-    .then(device => {
+    .then(({contacts1, contacts2, cnt}) => {
       if(req.params.status == 2)
-        em.handleEmergency(device.contacts1, device.contacts2);
+        em.handleEmergency(contacts1, contacts2, cnt);
       res.sendStatus(200);
     }).catch(err => { console.log(err); res.sendStatus(500); });
 });

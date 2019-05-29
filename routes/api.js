@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const Device = require('../models/device');
 const User = require('../models/user');
+const em = require('../service/EmergencyManager');
 
 // get device is available
 router.get('/device/:deviceid', (req, res) => {
@@ -16,6 +17,13 @@ router.get('/device/:deviceid', (req, res) => {
 // get device status
 router.get('/device/:deviceid/status', (req, res) => {
   Device.getLatestStatusByDrivingId(req.params.deviceid)
+    .then(data => res.json(data))
+    .catch(e => { console.log(e); res.sendStatus(500) })
+});
+
+// get device driving records
+router.get('/device/:deviceid/history', (req, res) => {
+  Device.getDrivingRecordsByDeviceId(req.params.deviceid)
     .then(data => res.json(data))
     .catch(e => { console.log(e); res.sendStatus(500) })
 });
@@ -36,6 +44,30 @@ router.post('/user/:userid/device', (req, res) => {
     .then(() => Device.updateEmergencyContactByDeviceId(req.body.device_id, req.body.ec1, req.body.ec2))
     .then(() => res.sendStatus(200))
     .catch(e => { console.log(e); res.sendStatus(500) })
+});
+
+// get token status
+router.get('/detector/:uuid', (req, res) => {
+  em.getToken(req.params.uuid)
+    .then(({status, cnt}) => {
+      if(status)
+        res.json({ cnt: cnt });
+      else
+        res.sendStatus(203);
+    })
+    .catch(e => { console.log(e); res.sendStatus(404) })
+});
+
+// stop timer
+router.delete('/detector/:uuid', (req, res) => {
+  em.stopTimer(req.params.uuid)
+    .then(status => {
+      if(status)
+        res.sendStatus(200);
+      else
+        res.sendStatus(203);
+    })
+    .catch(e => { console.log(e); res.sendStatus(404) })
 });
 
 module.exports = router;

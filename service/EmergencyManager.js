@@ -19,15 +19,17 @@ class EmergencyManager {
     instance = this;
   }
 
-  handleEmergency(contacts1, contacts2, cb) {
+  handleEmergency(contacts1, contacts2, cnt) {
     const uuid1 = uuidv1();
     console.log('LOG: handleEmergency: ', contacts1, contacts2);
+    console.log('LOG: count -> ', cnt);
     
-    const body = `현재 위험 상황이 발생하였습니다!!\r\n해당 주소로 접속하여 확인 해 주세요.\r\nhttp://52.231.67.172:8088/api/detect/${uuid1}\r\n`;
+    const body = `현재 위험 상황이 발생하였습니다!!\r\n해당 주소로 접속하여 확인 해 주세요.\r\nhttp://52.231.67.172:3000/check?token=${uuid1}\r\n`;
     instance.sendEmail(contacts1, emerg_title, body);
 
     instance.timers[uuid1] = {
-      timer: setTimeout(instance.processEmergency, 20000, contacts2, uuid1),
+      cnt: cnt,
+      timer: setTimeout(instance.processEmergency, 120000, contacts2, uuid1),
       is_worked: false
     }
   }
@@ -55,19 +57,37 @@ class EmergencyManager {
     });
   }
 
-  stopTimer(uuid) {
+  getToken(uuid) {
     return new Promise((resolve, reject) => {
-      if(!this.timers[uuid])
+      if(!instance.timers[uuid])
         reject(new Error('Unavailable token value!'));
       else { 
-        if(this.timers[uuid].is_worked)
+        if(instance.timers[uuid].is_worked)
+          resolve({
+            status: false
+          });
+        else
+          resolve({
+            status: true, 
+            cnt: instance.timers[uuid].cnt
+          });
+      }
+    });
+  }
+
+  stopTimer(uuid) {
+    return new Promise((resolve, reject) => {
+      if(!instance.timers[uuid])
+        reject(new Error('Unavailable token value!'));
+      else { 
+        if(instance.timers[uuid].is_worked)
           resolve(false);
         else {
-          clearTimeout(this.timers[uuid].timer);
+          clearTimeout(instance.timers[uuid].timer);
           resolve(true);
         }
 
-        delete this.timers[uuid];
+        delete instance.timers[uuid];
       }
 
     });
